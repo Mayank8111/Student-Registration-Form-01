@@ -1,0 +1,10 @@
+
+body {
+    background-color: rgb(195, 209, 213);
+}
+
+
+#rol_no {
+    border: 2px solid rgba(117, 109, 191, 0.447);
+    border-radius: 4px;
+}

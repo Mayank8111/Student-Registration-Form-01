@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Student</title>
+</head>
+<body>
+    <h1>Find a Student</h1>
+    <p>Enter a roll number below to look up a student's details.</p>
+
+    <form id="searchForm">
+        <label for="rol_no">Roll Number</label><br>
+        <input type="text" id="rol_no" name="rol_no" placeholder="e.g. 101" required>
+        <br><br>
+        <input type="submit" value="Search">
+    </form>
+
+    <div id="result"></div>
+
+    <br>
+    <a href="Student_form.html">Back to Registration</a>
+
+    <script>
+        document.getElementById("searchForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const rolNo = document.getElementById("rol_no").value.trim();
+
+            const response = await fetch(`http://localhost:8000/students/${rolNo}`);
+            const result = await response.json();
+
+            const resultDiv = document.getElementById("result");
+
+            if (response.ok) {
+                resultDiv.innerHTML = `
+                    <h2>Student Found</h2>
+                    <table border="1" cellpadding="8">
+                        <tr><th>Roll Number</th><td>${result.rol_no}</td></tr>
+                        <tr><th>Name</th>        <td>${result.name}</td></tr>
+                        <tr><th>Email</th>       <td>${result.email}</td></tr>
+                        <tr><th>Course</th>      <td>${result.course}</td></tr>
+                    </table>
+                `;
+            } else {
+                resultDiv.innerHTML = `<p style="color:red;">No student found with roll number <strong>${rolNo}</strong>.</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

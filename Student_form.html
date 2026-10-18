@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration</title>
+    <style>
+        #submitBtn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>STUDENT REGISTRATION FORM</h1>
+    <form id="registerForm">
+        <label>ROLL NUMBER</label>
+        <input type="text" name="rol_no" required>
+
+        <label>NAME</label>
+        <input type="text" name="name" required>
+
+        <label>EMAIL</label>
+        <input type="email" name="email" required>
+
+        <label>COURSE</label>
+        <input type="text" name="course" required>
+
+        <br><br>
+        <input type="submit" id="submitBtn" value="Register">
+    </form>
+
+    <p id="message"></p>
+
+    <script>
+        document.getElementById("registerForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const btn = document.getElementById("submitBtn");
+            const msg = document.getElementById("message");
+
+            const data = {
+                rol_no: form.rol_no.value.trim(),
+                name:   form.name.value.trim(),
+                email:  form.email.value.trim(),
+                course: form.course.value.trim()
+            };
+
+            // Loading state: button disables, cursor shows spinner
+            btn.disabled = true;
+            btn.value = "Registering...";
+            document.body.style.cursor = "wait";
+            msg.textContent = "";
+
+            try {
+                const response = await fetch("http://localhost:8000/students", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    msg.textContent = "Student registered successfully!";
+                    msg.style.color = "green";
+                    form.reset();
+                } else {
+                    msg.textContent = "Error: " + result.detail;
+                    msg.style.color = "red";
+                }
+            } catch (err) {
+                msg.textContent = "Cannot connect to server. Is FastAPI running on port 8000?";
+                msg.style.color = "red";
+            }
+
+            btn.disabled = false;
+            btn.value = "Register";
+            document.body.style.cursor = "default";
+        });
+    </script>
+</body>
+</html>

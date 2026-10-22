@@ -15,6 +15,7 @@ A student registration and search system built with FastAPI and SQL Server, with
 ├── main.py             # FastAPI backend with all endpoints
 ├── Student_form.html   # Registration form (POST)
 ├── search.html         # Search form (GET)
+├── delete.html         # Delete form (DELETE)
 ├── index.css           # Styles
 └── trial01.py          # Experimental scripts
 ```
@@ -48,6 +49,7 @@ Place the project folder in `C:\xampp\htdocs\` and start Apache via XAMPP Contro
 
 - Registration: `http://localhost/form_POST/Student_form.html`
 - Search: `http://localhost/form_POST/search.html`
+- Delete: `http://localhost/form_POST/delete.html`
 - API Docs: `http://localhost:8000/docs`
 
 ## Database Setup

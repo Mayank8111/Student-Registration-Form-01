@@ -4,13 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Registration</title>
-    <style>
-        #submitBtn {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
     <h1>STUDENT REGISTRATION FORM</h1>
@@ -43,12 +37,11 @@
 
             const data = {
                 rol_no: form.rol_no.value.trim(),
-                name:   form.name.value.trim(),
-                email:  form.email.value.trim(),
+                name: form.name.value.trim(),
+                email: form.email.value.trim(),
                 course: form.course.value.trim()
             };
 
-            // Loading state: button disables, cursor shows spinner
             btn.disabled = true;
             btn.value = "Registering...";
             document.body.style.cursor = "wait";
@@ -72,7 +65,7 @@
                     msg.style.color = "red";
                 }
             } catch (err) {
-                msg.textContent = "Cannot connect to server. Is FastAPI running on port 8000?";
+                msg.textContent = "Cannot connect to server?";
                 msg.style.color = "red";
             }
 

@@ -6,7 +6,6 @@ import pyodbc
 
 app = FastAPI(title="Student Registration API", version="1.0.0")
 
-# Allow requests from your HTML files served via XAMPP
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -14,7 +13,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ---------- Database connection ----------
 def get_connection():
     conn_str = (
         "DRIVER={ODBC Driver 17 for SQL Server};"
@@ -24,9 +22,7 @@ def get_connection():
         "TrustServerCertificate=yes;"
     )
     return pyodbc.connect(conn_str)
-
-
-# ---------- Pydantic Models ----------
+# pydantic model
 class StudentCreate(BaseModel):
     rol_no: str
     name: str
@@ -39,7 +35,10 @@ class StudentUpdate(BaseModel):
     course: Optional[str] = None
 
 
-# ---------- GET all students ----------
+
+
+
+
 @app.get("/students")
 def get_all_students():
     conn = None
@@ -59,7 +58,9 @@ def get_all_students():
             conn.close()
 
 
-# ---------- GET single student by roll number ----------
+
+
+
 @app.get("/students/{rol_no}")
 def get_student(rol_no: str):
     conn = None
@@ -67,9 +68,9 @@ def get_student(rol_no: str):
         conn = get_connection()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT rol_no, name, email, course FROM studentdb WHERE rol_no = ?",
+            "SELECT * FROM studentdb WHERE rol_no = ?",
             (rol_no,)
-        )
+        ) 
         row = cursor.fetchone()
         if not row:
             raise HTTPException(status_code=404, detail=f"Student '{rol_no}' not found")
@@ -83,7 +84,11 @@ def get_student(rol_no: str):
             conn.close()
 
 
-# ---------- POST create new student ----------
+
+
+
+
+
 @app.post("/students", status_code=201)
 def create_student(student: StudentCreate):
     conn = None
@@ -97,7 +102,13 @@ def create_student(student: StudentCreate):
         conn.commit()
         return {"message": "Student registered successfully", "rol_no": student.rol_no}
     except pyodbc.IntegrityError as e:
-        raise HTTPException(status_code=409, detail=str(e))
+        error_msg = str(e)
+        if "rol_no" in error_msg.lower() or "PK__" in error_msg:
+            raise HTTPException(status_code=409, detail=f"Roll number '{student.rol_no}' already exists")
+        elif "email" in error_msg.lower() or "UQ__" in error_msg:
+            raise HTTPException(status_code=409, detail=f"A student with email '{student.email}' already exists. No two students can share the same email.")
+        else:
+            raise HTTPException(status_code=409, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
@@ -105,7 +116,10 @@ def create_student(student: StudentCreate):
             conn.close()
 
 
-# ---------- PUT update existing student ----------
+
+
+
+
 @app.put("/students/{rol_no}")
 def update_student(rol_no: str, student: StudentUpdate):
     conn = None
@@ -113,7 +127,6 @@ def update_student(rol_no: str, student: StudentUpdate):
         conn = get_connection()
         cursor = conn.cursor()
 
-        # Build update query dynamically based on what fields were sent
         fields = []
         values = []
         if student.name is not None:
@@ -147,7 +160,11 @@ def update_student(rol_no: str, student: StudentUpdate):
             conn.close()
 
 
-# ---------- DELETE student ----------
+
+
+
+
+
 @app.delete("/students/{rol_no}")
 def delete_student(rol_no: str):
     conn = None

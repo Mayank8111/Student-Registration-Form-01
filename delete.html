@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Student </title>
+</head>
+<body>
+    <h1>Delete Student</h1>
+
+    <form id="findform">
+        <label for="rol_no">Roll Number</label>
+        <input id="rol_no" type="text" required>
+        <button type="submit">Find Student</button>
+    </form>
+    <div id="studentDetails" hidden>
+        <h2>Student Details</h2>
+        <p id="details"></p>
+
+        <button type="button" id="deleteBtn">
+            Delete This Student
+        </button>
+    </div>
+
+    <p id="message"></p>
+
+    <a href="Student_form.html">Registration</a> |
+    <a href="search.html">Search Student</a>
+    <script>
+                const API = "http://localhost:8000/students";
+        const findform = document.getElementById("findform");
+        const rollInput = document.getElementById("rol_no");
+        const studentDetails = document.getElementById("studentDetails");
+        const details = document.getElementById("details");
+        const message = document.getElementById("message");
+        const deleteBtn = document.getElementById("deleteBtn");
+
+        let foundRollNo = "";
+
+        findform.addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            foundRollNo = "";
+            studentDetails.hidden = true;
+            message.textContent = "";
+
+            const rollNo = rollInput.value.trim();
+
+            try {
+                const response = await fetch(
+                    `${API}/${encodeURIComponent(rollNo)}`
+                );
+                const student = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(student.detail || "Student not found");
+                }
+
+                foundRollNo = student.rol_no;
+
+                details.textContent =
+                    `Roll Number: ${student.rol_no} | ` +
+                    `Name: ${student.name} | ` +
+                    `Email: ${student.email} | ` +
+                    `Course: ${student.course}`;
+
+                studentDetails.hidden = false;
+                message.textContent =
+                    "Check the details before deleting.";
+            } catch (error) {
+                message.textContent = error.message;
+            }
+        });
+
+        deleteBtn.addEventListener("click", async function() {
+            if (!foundRollNo) {
+                return;
+            }
+
+            const confirmed = confirm(
+                `Are you sure you want to delete student ${foundRollNo}?`
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `${API}/${encodeURIComponent(foundRollNo)}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.detail || "Deletion failed");
+                }
+
+                message.textContent = result.message;
+                studentDetails.hidden = true;
+                foundRollNo = "";
+                rollInput.value = "";
+            } catch (error) {
+                message.textContent = error.message;
+            }
+        });
+    </script>
+</body>
+</html>
